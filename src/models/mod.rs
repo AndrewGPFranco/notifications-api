@@ -1,4 +1,18 @@
-//! Tipos que representam os dados da aplicação.
-//!
-//! Aqui ficam entidades de domínio e DTOs de entrada/saída. É semelhante ao
-//! pacote `model` ou `dto` em projetos Java.
+use chrono::NaiveDate;
+
+#[allow(dead_code)]
+pub struct Notification {
+    id: i32,
+    user_id: i32,
+    content: String,
+    category: Category,
+    was_it_viewed: bool,
+    created_at: NaiveDate,
+    updated_at: Option<NaiveDate>
+}
+
+#[allow(dead_code)]
+enum Category {
+    TaskExpired,
+    TaskCloseToExpire,
+}
