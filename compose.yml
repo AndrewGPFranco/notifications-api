@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16.0-alpine
+    container_name: db_notifications
+    ports:
+      - 5422:5432
+    environment:
+      - 'POSTGRES_DB=${DB_NOTIF_DB}'
+      - 'POSTGRES_USER=${DB_NOTIF_USER}'
+      - 'POSTGRES_PASSWORD=${DB_NOTIF_PASSWORD}'
+    volumes:
+      - db-notifications:/var/lib/postgresql/data
+
+volumes:
+  db-notifications:
