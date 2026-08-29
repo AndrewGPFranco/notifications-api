@@ -1,13 +1,19 @@
 use std::env;
 use dotenv::dotenv;
-use sqlx::PgPool;
+use sqlx::PgPoolOptions;
 
-pub async fn connect() {
+pub async fn connect() -> PgPool {
     dotenv().ok();
 
     let database_url = env::var("DATABASE_URL").expect("DATABASE_URL must be set");
 
-    PgPool::connect(&database_url).await.unwrap();
-    
+    let pool = PgPoolOptions::new().max_connections(5).connect(&database_url).await.unwrap();
+
     println!("Conexão ao banco de dados estabelecida com sucesso!");
+
+    sqlx::migrate!().run(&pool).await?;
+
+    println!("Migrations executadas com sucesso!");
+
+    Ok(pool)
 }
