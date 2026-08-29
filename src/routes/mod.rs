@@ -1,13 +1,7 @@
 use axum::{Router, routing::get};
 
-use crate::handlers::pages::{about, index};
+use crate::handlers::pages::{recuperar_notificacoes};
 
-/// Agrupa as rotas HTTP da aplicação.
-///
-/// Equivale, aproximadamente, à classe de configuração de rotas de uma
-/// aplicação Java (por exemplo, os controllers registrados pelo Spring).
 pub fn routes() -> Router {
-    Router::new()
-        .route("/", get(index))
-        .route("/about", get(about))
+    Router::new().route("/", get(recuperar_notificacoes))
 }
