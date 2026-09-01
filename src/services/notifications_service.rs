@@ -9,7 +9,7 @@ pub async fn setup_cron() -> anyhow::Result<JobScheduler> {
         Job::new_async(TEMPO, |_uuid, _1| {
             Box::pin(async move {
                 println!("rodando job de hora em hora");
-                recuperar_notificacoes().await;
+                processa_notificacoes().await;
             })
         })?).await?;
 
@@ -17,6 +17,11 @@ pub async fn setup_cron() -> anyhow::Result<JobScheduler> {
     Ok(scheduler)
 }
 
-async fn recuperar_notificacoes() {
-    println!("Buscando notificações");
+async fn processa_notificacoes() {
+    println!("Iniciando processo de notificações");
+    // recuperar_notificacoes().await;
 }
+//
+// async fn recuperar_notificacoes() -> Result<> {
+//
+// }

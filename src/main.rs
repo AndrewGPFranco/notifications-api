@@ -4,6 +4,7 @@ mod repositories;
 mod routes;
 mod services;
 mod configs;
+mod dtos;
 
 use crate::configs::database::connect;
 use crate::routes::routes;
