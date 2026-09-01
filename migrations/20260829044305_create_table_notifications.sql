@@ -2,6 +2,7 @@ CREATE TABLE notifications
 (
     id            INTEGER GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id       INTEGER NOT NULL,
+    demand_id     UUID    NOT NULL,
     content       TEXT    NOT NULL,
     category      TEXT    NOT NULL,
     was_it_viewed BOOLEAN NOT NULL DEFAULT FALSE,
