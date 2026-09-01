@@ -5,9 +5,13 @@ edition = "2024"
 
 [dependencies]
 axum = "0.8.9"
-chrono = "0.4"
+chrono = { version = "0.4", features = ["serde"] }
 tokio = { version = "1.53.1", features = ["full"] }
-sqlx = { version = "0.6", features = ["postgres", "runtime-tokio-rustls", "migrate"] }
+sqlx = { version = "0.6", features = ["postgres", "runtime-tokio-rustls", "migrate", "chrono", "uuid"] }
 dotenv = "0.15"
 tokio-cron-scheduler = "0.13"
 anyhow = "1.0.104"
+reqwest = { version = "0.13.4", features = ["json"] }
+serde = { version = "1.0.229", features = ["derive"] }
+async-trait = "0.1.92"
+uuid = { version = "1.26.0", features = ["v4", "serde"] }
