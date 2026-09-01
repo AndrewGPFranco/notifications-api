@@ -1,10 +1,9 @@
 use axum::{Router, routing::get};
-use sqlx::PgPool;
+use crate::handlers::pages::recover_notifications;
+use crate::services::notifications_service::AppState;
 
-use crate::handlers::pages::recuperar_notificacoes;
-
-pub fn routes(pool: PgPool) -> Router {
+pub fn routes(state: AppState) -> Router {
     Router::new()
-        .route("/", get(recuperar_notificacoes))
-        .with_state(pool)
+        .route("/api/v1/recover-notifications/{id}", get(recover_notifications))
+        .with_state(state)
 }
