@@ -1,0 +1,31 @@
+sequenceDiagram
+    actor USER
+
+    box Api Notificações
+        participant CRON as Cron
+        participant REC as Serviço de Recuperação
+        participant HAN as Handler de Notificações
+        participant SSE as Endpoint SSE
+        participant DB as Database
+    end
+    participant W as Api Workhub
+    Note over CRON: Dispara a cada hora (0 0 * * * *)
+    CRON ->> REC: Executa a recuperação das notificações
+    REC ->> W: GET /demands
+    W -->> REC: 200 OK (demandas da sprint atual)
+    REC -->> CRON: Lista de demandas
+    CRON ->> HAN: Processa a lista de demandas
+    loop Para cada demanda
+        alt Bate com a regra (expirada / perto de expirar)
+            HAN ->> DB: INSERT notification
+            DB -->> HAN: OK
+        end
+    end
+    HAN -->> CRON: Notificações geradas
+    Note over USER, SSE: Fluxo independente do cron
+    USER ->> SSE: Abre conexão SSE
+    loop Enquanto a conexão estiver aberta (5 em 5 minutos)
+        SSE ->> DB: SELECT notifications WHERE user_id = ?1 and was_it_viewed = false
+        DB -->> SSE: Novas notificações
+        SSE -->> USER: event: notification
+    end
