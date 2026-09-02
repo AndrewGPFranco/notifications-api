@@ -7,7 +7,7 @@ use crate::models::notification::Notification;
 
 #[async_trait]
 pub trait NotificationRepository: Send + Sync {
-    async fn create(&self, demand: DemandDTO) -> Result<Notification, sqlx::Error>;
+    async fn create(&self, demand: DemandDTO, content: String) -> Result<Notification, sqlx::Error>;
     async fn get_by_id_demand(&self, id_demand: uuid) -> Result<Option<Notification>, sqlx::Error>;
     async fn get_by_user(&self, id_user: i32) -> Result<Vec<Notification>, sqlx::Error>;
 }
@@ -24,7 +24,7 @@ impl PostgresNotificationRepository {
 
 #[async_trait]
 impl NotificationRepository for PostgresNotificationRepository {
-    async fn create(&self, demand: DemandDTO) -> Result<Notification, sqlx::Error> {
+    async fn create(&self, demand: DemandDTO, content: String) -> Result<Notification, sqlx::Error> {
         let notification = sqlx::query_as!(
             Notification,
             r#"
@@ -34,7 +34,7 @@ impl NotificationRepository for PostgresNotificationRepository {
             "#,
             demand.id_usuario,
             demand.id_demanda,
-            demand.titulo_tarefa,
+            content,
             "TASK_CLOSE_TO_EXPIRE",
             false,
             Utc::now().date_naive(),

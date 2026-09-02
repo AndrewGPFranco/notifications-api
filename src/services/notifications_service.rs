@@ -6,6 +6,9 @@ use crate::state::AppState;
 
 const TEMPO: &str = "0 0 * * * *";
 
+#[allow(dead_code)]
+const TEMPO_TESTE: &str = "*/5 * * * * *";
+
 pub async fn setup_cron(state: AppState) -> anyhow::Result<JobScheduler> {
     let scheduler = JobScheduler::new().await?;
 
@@ -74,7 +77,9 @@ async fn create_notification(demand: DemandDTO, state: &AppState) -> Result<(), 
     let notification = state.notification_repo.get_by_id_demand(demand.id_demanda).await?;
 
     if notification.is_none() {
-        state.notification_repo.create(demand).await?;
+        // TODO: tratar outros cenários possíveis
+        let content = format!("Tarefa expirada: {}", demand.titulo_tarefa);
+        state.notification_repo.create(demand, content).await?;
     }
 
     Ok(())
