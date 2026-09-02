@@ -3,10 +3,10 @@ sequenceDiagram
 
     box Api Notificações
         participant CRON as Cron
-        participant REC as Serviço de Recuperação
-        participant HAN as Handler de Notificações
+        participant REC as Handler Demandas
+        participant HAN as Handler Notificações
         participant SSE as Endpoint SSE
-        participant DB as Database
+        participant DB@{ "type": "database" } as Database
     end
     participant W as Api Workhub
     Note over CRON: Dispara a cada hora (0 0 * * * *)
@@ -24,8 +24,8 @@ sequenceDiagram
     HAN -->> CRON: Notificações geradas
     Note over USER, SSE: Fluxo independente do cron
     USER ->> SSE: Abre conexão SSE
-    loop Enquanto a conexão estiver aberta (5 em 5 minutos)
-        SSE ->> DB: SELECT notifications WHERE user_id = ?1 and was_it_viewed = false
-        DB -->> SSE: Novas notificações
+    loop Enquanto a conexão estiver aberta (1 em 1 minuto)
+        SSE ->> DB: SELECT notifications WHERE user_id = ?1
+        DB -->> SSE: Notificações
         SSE -->> USER: event: notification
     end
