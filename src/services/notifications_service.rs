@@ -1,16 +1,10 @@
-use std::sync::Arc;
 use chrono::{DateTime, Days, FixedOffset, Utc};
 use tokio_cron_scheduler::{Job, JobScheduler};
 
 use crate::dtos::notification_dto::{DemandDTO, OutputNotificationDTO};
-use crate::repositories::notification_repository::NotificationRepository;
+use crate::state::AppState;
 
 const TEMPO: &str = "0 0 * * * *";
-
-#[derive(Clone)]
-pub struct AppState {
-    pub notification_repo: Arc<dyn NotificationRepository>,
-}
 
 pub async fn setup_cron(state: AppState) -> anyhow::Result<JobScheduler> {
     let scheduler = JobScheduler::new().await?;
@@ -33,7 +27,7 @@ pub async fn process_notifications(state: &AppState) {
     let now = get_now();
     println!("Iniciando processo de notificações {}", now);
 
-    match recover_demands().await {
+    match recover_demands(&state.admin_api_key).await {
         Ok(demands) => {
             handler_notifications(demands, state).await;
         }
@@ -63,9 +57,10 @@ async fn handler_notifications(demands: Vec<DemandDTO>, state: &AppState) {
     }
 }
 
-async fn recover_demands() -> Result<Vec<DemandDTO>, anyhow::Error> {
+async fn recover_demands(api_key: &str) -> Result<Vec<DemandDTO>, anyhow::Error> {
     let notifications = reqwest::Client::new()
-        .get("http://localhost:9001/cron/all-demands")
+        .get("http://localhost:9001/api/admin/all-demands")
+        .header("X-API-Key", api_key)
         .send()
         .await?
         .error_for_status()?

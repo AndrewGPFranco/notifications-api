@@ -4,7 +4,8 @@ use axum::{
     Json,
 };
 use crate::dtos::notification_dto::OutputNotificationDTO;
-use crate::services::notifications_service::{AppState, recover_notifications_user};
+use crate::services::notifications_service::{process_notifications, recover_notifications_user};
+use crate::state::AppState;
 
 pub async fn recover_notifications(
     Path(id): Path<i32>,
@@ -18,4 +19,8 @@ pub async fn recover_notifications(
         })?;
 
     Ok(Json(notifications))
+}
+
+pub async fn process_demands(State(state): State<AppState>) {
+    process_notifications(&state).await
 }
