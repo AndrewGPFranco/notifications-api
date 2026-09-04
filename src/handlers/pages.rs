@@ -3,8 +3,11 @@ use axum::{
     http::StatusCode,
     Json,
 };
-use crate::dtos::notification_dto::OutputNotificationDTO;
-use crate::services::notifications_service::{process_notifications, recover_notifications_user};
+use crate::dtos::notification_dto::{OutputNotificationDTO, UpdateNotificationDTO};
+use crate::services::notifications_service::{
+    process_notifications, recover_notifications_user,
+    update_notification_viewed, update_all_notification_viewed
+};
 use crate::state::AppState;
 
 pub async fn recover_notifications(
@@ -23,4 +26,18 @@ pub async fn recover_notifications(
 
 pub async fn process_demands(State(state): State<AppState>) {
     process_notifications(&state).await
+}
+
+pub async fn update_notification(
+    State(state): State<AppState>,
+    Json(request): Json<UpdateNotificationDTO>,
+) {
+    update_notification_viewed(request, &state).await
+}
+
+pub async fn update_all_notifications(
+    Path(id): Path<i32>,
+    State(state): State<AppState>
+) {
+    update_all_notification_viewed(id, &state).await
 }

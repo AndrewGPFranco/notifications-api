@@ -2,7 +2,7 @@ use async_trait::async_trait;
 use chrono::Utc;
 use uuid::Uuid as uuid;
 
-use crate::dtos::notification_dto::DemandDTO;
+use crate::dtos::notification_dto::{DemandDTO, UpdateNotificationDTO};
 use crate::models::notification::Notification;
 
 #[async_trait]
@@ -10,6 +10,8 @@ pub trait NotificationRepository: Send + Sync {
     async fn create(&self, demand: DemandDTO, content: String) -> Result<Notification, sqlx::Error>;
     async fn get_by_id_demand(&self, id_demand: uuid) -> Result<Option<Notification>, sqlx::Error>;
     async fn get_by_user(&self, id_user: i32) -> Result<Vec<Notification>, sqlx::Error>;
+    async fn update_notification_viewed(&self, dto: UpdateNotificationDTO) -> Result<(), sqlx::Error>;
+    async fn update_all_notification_viewed(&self, id_user: i32) -> Result<(), sqlx::Error>;
 }
 
 pub struct PostgresNotificationRepository {
@@ -62,11 +64,36 @@ impl NotificationRepository for PostgresNotificationRepository {
         let notifications = sqlx::query_as!(
             Notification,
             r#"
-            SELECT * FROM notifications WHERE user_id = $1
+            SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC LIMIT 10
             "#,
             id_user
         ).fetch_all(&self.pool).await?;
         
         Ok(notifications)
+    }
+
+    async fn update_notification_viewed(&self, dto: UpdateNotificationDTO) -> Result<(), sqlx::Error> {
+        sqlx::query_as!(
+            Notification,
+            r#"
+            UPDATE notifications SET was_it_viewed = true WHERE id = $1 and user_id = $2
+            "#,
+            dto.notification_id,
+            dto.user_id
+        ).execute(&self.pool).await?;
+
+        Ok(())
+    }
+
+    async fn update_all_notification_viewed(&self, id_user: i32) -> Result<(), sqlx::Error> {
+        sqlx::query_as!(
+            Notification,
+            r#"
+            UPDATE notifications SET was_it_viewed = true WHERE user_id = $1
+            "#,
+            id_user
+        ).execute(&self.pool).await?;
+
+        Ok(())
     }
 }

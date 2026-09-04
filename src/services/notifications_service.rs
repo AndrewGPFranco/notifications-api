@@ -1,7 +1,7 @@
 use chrono::{DateTime, Days, FixedOffset, Utc};
 use tokio_cron_scheduler::{Job, JobScheduler};
 
-use crate::dtos::notification_dto::{DemandDTO, OutputNotificationDTO};
+use crate::dtos::notification_dto::{DemandDTO, OutputNotificationDTO, UpdateNotificationDTO};
 use crate::state::AppState;
 
 const TEMPO: &str = "0 0 * * * *";
@@ -91,6 +91,7 @@ pub async fn recover_notifications_user(id_user: i32, state: &AppState) -> Resul
     let output = notifications
         .iter()
         .map(|notification| OutputNotificationDTO {
+            id: notification.id,
             content: notification.content.clone(),
             was_it_viewed: notification.was_it_viewed,
             created_at: notification.created_at,
@@ -98,4 +99,16 @@ pub async fn recover_notifications_user(id_user: i32, state: &AppState) -> Resul
         .collect();
 
     Ok(output)
+}
+
+pub async fn update_notification_viewed(dto: UpdateNotificationDTO, state: &AppState) {
+    if let Err(error) = state.notification_repo.update_notification_viewed(dto).await {
+        eprintln!("Erro ao atualizar visualização da notificação: {error}");
+    }
+}
+
+pub async fn update_all_notification_viewed(id_user: i32, state: &AppState) {
+    if let Err(error) = state.notification_repo.update_all_notification_viewed(id_user).await {
+        eprintln!("Erro ao atualizar visualização das notificações: {error}");
+    }
 }
